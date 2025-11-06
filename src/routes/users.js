@@ -44,6 +44,8 @@ const { verifyToken, optionalAuth } = require('../middleware/auth');
  *                 type: string
  *               email:
  *                 type: string
+ *               password:
+ *                 type: string
  *               btn_submit:
  *                 type: string
  *                 example: "submit"

@@ -282,17 +282,15 @@ const logoutCheck = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await require('../models/usersModel').findByPhone(req.dbName, username);
+    const { username, password, ...loginData } = req.body;
+    const result = await usersService.loginWithPassword(req.dbName, username, password, loginData);
     
-    if (!user) {
-      return sendError(res, 'User_Not_Found', 404);
+    if (!result.success) {
+      return sendError(res, result.message, 400);
     }
     
-    // Password verification would go here
-    const token = require('../utils/jwt').generateToken({ userId: user.id, phone: user.phone });
-    res.setHeader('Authorization', token);
-    sendSuccess(res, { token, user }, 'Login_Successfully');
+    res.setHeader('Authorization', result.token);
+    sendSuccess(res, { token: result.token, user: result.user }, 'Login_Successfully');
   } catch (error) {
     logger.error('Login error', { error: error.message });
     sendError(res, 'Login_Failed', 500);

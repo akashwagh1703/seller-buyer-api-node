@@ -7,14 +7,14 @@ const findByPhone = async (dbName, phone) => {
 };
 
 const createUser = async (dbName, userData) => {
-  const { phone, opt_number, first_name, last_name, email, gender, dob, device_id, referral_code, group_id, is_whitelabeled, client_type, app_user_type } = userData;
+  const { phone, opt_number, first_name, last_name, email, gender, dob, device_id, referral_code, password, group_id, is_whitelabeled, client_type, app_user_type } = userData;
   
-  const sql = `INSERT INTO client (phone, opt_number, first_name, last_name, email, gender, dob, device_id, referral_code, group_id, group_ids, is_whitelabeled, client_type, app_user_type, is_active, my_refferal_code, created_on) 
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, true, $15, NOW()) 
+  const sql = `INSERT INTO client (phone, opt_number, first_name, last_name, email, gender, dob, device_id, referral_code, password, group_id, group_ids, is_whitelabeled, client_type, app_user_type, is_active, my_refferal_code, created_on) 
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, true, $16, NOW()) 
                RETURNING id, COALESCE(active_step, 1) as active_step`;
   
   const myRefCode = Date.now().toString();
-  const result = await query(dbName, sql, [phone, opt_number, first_name, last_name, email, gender, dob, device_id, referral_code, group_id, group_id, is_whitelabeled, client_type, app_user_type, myRefCode]);
+  const result = await query(dbName, sql, [phone, opt_number, first_name, last_name, email, gender, dob, device_id, referral_code, password, group_id, group_id, is_whitelabeled, client_type, app_user_type, myRefCode]);
   return result.rows[0];
 };
 

@@ -1,0 +1,29 @@
+pipeline {
+	agent { node { label 'Master' } }
+	stages {
+	    stage('Clean existing Built Containers'){
+		    when { expression { (env.BRANCH_NAME =~ /(?i)(.*development.*||qa-.*||release||qa)/) } }
+			steps {
+			sh 'docker rmi -f hub.enlight.dev/nerace/nerace-api:$BRANCH_NAME || true'
+			}
+		}
+		stage('Build container Image'){
+		    when { expression { (env.BRANCH_NAME =~ /(?i)(.*development.*||qa-.*||release||qa)/) } }
+			steps {
+				sh 'docker build -t hub.enlight.dev/nerace/nerace-api:$BRANCH_NAME .'
+	        }
+		}
+		stage('Push Image'){
+		    when { expression { (env.BRANCH_NAME =~ /(?i)(.*development.*||qa-.*||release||qa)/) } }
+			steps{
+			withDockerRegistry(credentialsId: 'enlight360-dev-hub', url: 'https://hub.enlight.dev') {
+			    sh 'docker push hub.enlight.dev/nerace/nerace-api:$BRANCH_NAME'
+	        }
+			
+			}
+		}
+
+    }
+}
+
+

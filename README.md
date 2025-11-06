@@ -8,18 +8,15 @@ Node.js/Express migration of the Nerace API from CodeIgniter 3 with 100% parity.
 ```bash
 npm install
 ```
-
 ### 2. Configure Environment
 ```bash
 cp .env.example .env
 # Edit .env with your database credentials and API keys
 ```
-
 ### 3. Create Logs Directory
 ```bash
 mkdir logs
 ```
-
 ### 4. Run Development Server
 ```bash
 npm run dev

@@ -2,9 +2,10 @@ const usersModel = require('../models/usersModel');
 const { generateOTP } = require('../utils/otp');
 const { sendSMS } = require('../utils/sms');
 const { generateToken } = require('../utils/jwt');
+const { verifyPassword, encrypt } = require('../utils/password');
 
 const registerOTP = async (dbName, userData) => {
-  const { phone, first_name, last_name, email, gender, dob, device_id, referral_code } = userData;
+  const { phone, first_name, last_name, email, gender, dob, device_id, referral_code, password } = userData;
   const cleanPhone = phone.replace(/\s+/g, '').slice(-10);
   
   const existingUser = await usersModel.findByPhone(dbName, cleanPhone);
@@ -19,6 +20,10 @@ const registerOTP = async (dbName, userData) => {
     await sendSMS(cleanPhone, smsText).catch(err => console.log('SMS failed:', err.message));
   }
 
+  // Encrypt password if provided
+  const encryptionKey = process.env.ENCRYPTION_KEY || 'your_encryption_key';
+  const encryptedPassword = password ? encrypt(password, encryptionKey) : null;
+  
   const newUser = await usersModel.createUser(dbName, {
     phone: cleanPhone,
     opt_number: otp,
@@ -29,6 +34,7 @@ const registerOTP = async (dbName, userData) => {
     dob: dob || null,
     device_id: device_id || null,
     referral_code: referral_code || null,
+    password: encryptedPassword,
     group_id: null,
     is_whitelabeled: 'false',
     client_type: 2,
@@ -76,4 +82,28 @@ const updateUserProfile = async (dbName, userId, profileData) => {
   return updatedUser;
 };
 
-module.exports = { registerOTP, verifyOTP, loginWithOTP, getProfile, updateUserProfile };
+const loginWithPassword = async (dbName, phone, password, loginData) => {
+  const cleanPhone = phone.replace(/\s+/g, '').slice(-10);
+  const user = await usersModel.findByPhone(dbName, cleanPhone);
+  
+  if (!user) {
+    return { success: false, message: 'User_Not_Found' };
+  }
+
+  console.log('Login attempt:', { phone: cleanPhone, inputPassword: password, storedPassword: user.password });
+
+  // Use CodeIgniter-style password verification
+  const encryptionKey = process.env.ENCRYPTION_KEY || 'your_encryption_key';
+  const isPasswordValid = verifyPassword(password, user.password, encryptionKey);
+  
+  if (!isPasswordValid) {
+    return { success: false, message: 'Invalid_Password' };
+  }
+
+  const updatedUser = await usersModel.updateLoginData(dbName, user.id, loginData);
+  const token = generateToken({ userId: updatedUser.id, phone: updatedUser.phone });
+
+  return { success: true, user: updatedUser, token };
+};
+
+module.exports = { registerOTP, verifyOTP, loginWithOTP, getProfile, updateUserProfile, loginWithPassword };

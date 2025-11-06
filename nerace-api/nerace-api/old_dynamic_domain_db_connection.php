@@ -1,0 +1,46 @@
+<?php
+
+$headers = apache_request_headers(); // get headers data from curl call
+// print_r($headers);exit;
+
+$x_api_key = strtolower($headers['X-API-KEY']);
+$domain = strtolower($headers['domain']);
+
+// db connections
+$db_handle = pg_connect("host=localhost dbname=agroemandi_dev user=postgres password=Supp0rt@123");
+
+if ($db_handle) {
+    $query = "SELECT id, db_name as appname, url_path, title, domain FROM setup_config_master WHERE LOWER(domain) = '".$domain."' AND is_deleted = false ORDER BY id desc LIMIT 1";
+
+    // $result = pg_query($db_handle, $query);
+    $result = pg_query($query) or die('Error message: ' . pg_last_error());
+    $row = pg_fetch_assoc($result);
+
+
+
+    if (!empty($row) && count($row) > 0) {
+        $status     = 1;
+        $error      = 0;
+        $data     = $row;
+        $msg        = "Domain found.";
+    } else {
+        $status     = 0;
+        $error      = 1;
+        $data     = null;
+        $msg        = "Domain not found!.";
+    }
+
+    pg_close($db_handle);
+
+} else {
+    $status     = 0;
+    $error      = 1;
+    $data     = null;
+    $msg        = "Connection attempt failed.";
+}
+
+
+$data = array('status'=>$status, 'error'=>$error, 'data'=>$data, 'msg'=>$msg);
+echo json_encode($data);
+
+?>

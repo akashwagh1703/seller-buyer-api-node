@@ -32,7 +32,11 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Global middleware
 app.use(dbSelector);
-// app.use(verifyApiKey); // Disabled for testing
+app.use('/api/v16/users/resend_otp', verifyApiKey);
+app.use('/api/v16/users/profile', verifyApiKey);
+app.use('/api/v16/users/update_profile', verifyApiKey);
+app.use('/api/v16/users/logout_check', verifyApiKey);
+// Other endpoints don't need API key for testing
 
 // Request logging
 app.use((req, res, next) => {
@@ -51,8 +55,12 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/v16/users', require('./routes/users'));
-app.use('/api/v16/users', require('./routes/farm'));
+app.use('/api/v16/farm', require('./routes/farm'));
 app.use('/api/v16/trade', require('./routes/trade'));
+app.use('/api/v16/market', require('./routes/market'));
+app.use('/api/v16/npk', require('./routes/npk'));
+app.use('/api/v16/location', require('./routes/location'));
+app.use('/api/v16/trading', require('./routes/trading'));
 // app.use('/api/v16/buyer', require('./routes/buyer'));
 
 // 404 handler
