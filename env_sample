@@ -1,0 +1,28 @@
+NODE_ENV=development
+PORT=3000
+
+# Database - UAT
+DB_HOST_UAT=115.124.98.61
+DB_PORT_UAT=5432
+DB_NAME_UAT=seller_buyer
+DB_USER_UAT=postgres
+DB_PASSWORD_UAT=Supp0rt@123
+
+# Database - Live
+DB_HOST_LIVE=115.124.98.61
+DB_PORT_LIVE=5432
+DB_NAME_LIVE=nerace_live_converted_api
+# DB_NAME_LIVE=nerace_live_converted_api
+DB_USER_LIVE=postgres
+DB_PASSWORD_LIVE=Supp0rt@123
+
+# API Key (use this in X-API-KEY header)
+API_KEY=test_api_key_12345
+
+# JWT
+JWT_SECRET=your_jwt_secret_key_change_in_production
+JWT_EXPIRES_IN=24h
+
+# SMS (optional for testing)
+SMS_API_URL=http://sms-gateway.com/api
+SMS_API_KEY=your_sms_key
