@@ -12,12 +12,13 @@ const createCrop = async (dbName, cropData) => {
 };
 
 const updateCrop = async (dbName, cropId, cropData) => {
+  const validFields = ['client_id', 'land_id', 'crop', 'crop_type', 'duration_from', 'duration_to', 'area_under_cultivation', 'crop_name', 'crop_name_mr', 'unit', 'crop_image'];
   const fields = [];
   const values = [];
   let paramCount = 1;
 
   Object.keys(cropData).forEach(key => {
-    if (cropData[key] !== undefined && cropData[key] !== null) {
+    if (validFields.includes(key) && cropData[key] !== undefined && cropData[key] !== null) {
       fields.push(`${key} = $${paramCount}`);
       values.push(cropData[key]);
       paramCount++;

@@ -33,7 +33,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Global middleware
 app.use(dbSelector);
 app.use('/api/v16/users/resend_otp', verifyApiKey);
-app.use('/api/v16/users/profile', verifyApiKey);
+// app.use('/api/v16/users/profile', verifyApiKey);
 app.use('/api/v16/users/update_profile', verifyApiKey);
 app.use('/api/v16/users/logout_check', verifyApiKey);
 // Other endpoints don't need API key for testing

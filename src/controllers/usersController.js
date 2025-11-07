@@ -1,21 +1,25 @@
 const usersService = require('../services/usersService');
 const { sendSuccess, sendError } = require('../utils/response');
 const logger = require('../utils/logger');
+const asyncHandler = require('../utils/asyncHandler');
+const { generateToken } = require('../utils/jwt');
 
-const registerOTP = async (req, res) => {
-  try {
+const createUser = asyncHandler(async (req, res) => {
+  const phone = req.body.phone;
+  const user = await require('../models/usersModel').findByPhone(req.dbName, phone);
+  
+  if (!user) {
     const result = await usersService.registerOTP(req.dbName, req.body);
-    
     if (!result.success) {
-      return sendError(res, result.message, 400, { user_id: result.userId, active_step: result.activeStep });
+      throw new Error(result.message);
     }
-
-    sendSuccess(res, { user_id: result.userId, active_step: result.activeStep, opt_number: result.otp }, 'Register_Successfully');
-  } catch (error) {
-    logger.error('Register OTP error', { error: error.message, stack: error.stack });
-    sendError(res, error.message || 'Registration_Failed', 500);
+    res.json({ user_id: result.userId, active_step: result.activeStep, opt_number: result.otp });
+  } else {
+    throw new Error(`User ${phone} Already Exists`);
   }
-};
+});
+
+const registerOTP = createUser;
 
 const verifyOTP = async (req, res) => {
   try {
@@ -66,7 +70,8 @@ const loginOTP = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const user = await usersService.getProfile(req.dbName, req.user.userId);
+    // req.user is already the full user object from auth middleware
+    const user = req.user;
     
     if (!user) {
       return sendError(res, 'User_Not_Found', 404);
@@ -280,22 +285,32 @@ const logoutCheck = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
-  try {
-    const { username, password, ...loginData } = req.body;
-    const result = await usersService.loginWithPassword(req.dbName, username, password, loginData);
-    
-    if (!result.success) {
-      return sendError(res, result.message, 400);
-    }
-    
-    res.setHeader('Authorization', result.token);
-    sendSuccess(res, { token: result.token, user: result.user }, 'Login_Successfully');
-  } catch (error) {
-    logger.error('Login error', { error: error.message });
-    sendError(res, 'Login_Failed', 500);
+const loginUserCtrl = asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
+  const usersModel = require('../models/usersModel');
+  
+  const user = await usersModel.findByPhone(req.dbName, username);
+  const { verifyPassword } = require('../utils/password');
+  const encryptionKey = process.env.ENCRYPTION_KEY || 'your_encryption_key';
+  
+  if (user && verifyPassword(password, user.password, encryptionKey)) {
+    res.json({
+      _id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone: user.phone,
+      token: generateToken(user.id),
+    });
+  } else {
+    res.status(401).json({
+      success: false,
+      message: "Invalid credentials",
+    });
   }
-};
+});
+
+const login = loginUserCtrl;
 
 const register = async (req, res) => {
   try {

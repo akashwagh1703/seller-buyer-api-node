@@ -15,29 +15,36 @@ const verifyApiKey = (req, res, next) => {
   next();
 };
 
-const verifyToken = (req, res, next) => {
-  const token = req.headers['token'] || req.headers['authorization']?.replace('Bearer ', '');
-  
+const verifyToken = async (req, res, next) => {
+  const token = req.body.token || req.query.token || req.header("authorization")?.replace('Bearer ', '');
+
   if (!token) {
-    return res.status(401).json({
-      success: false,
-      error: true,
-      status: 401,
-      message: 'Token required'
-    });
+    return res.status(401).json({ success: false, msg: "A token is required for authorization" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const usersModel = require('../models/usersModel');
+    
+    // Try to find user by phone first, then by userId
+    let user = null;
+    if (decoded.phone) {
+      user = await usersModel.findByPhone(req.dbName, decoded.phone);
+    } else if (decoded.userId) {
+      const sql = 'SELECT * FROM client WHERE is_deleted = false AND id = $1';
+      const result = await require('../config/database').query(req.dbName, sql, [decoded.userId]);
+      user = result.rows[0];
+    }
+    
+    if (!user) {
+      return res.status(401).json({ success: false, msg: "Invalid user associated with the token" });
+    }
+
+    req.user = user;
     next();
   } catch (error) {
-    return res.status(401).json({
-      success: false,
-      error: true,
-      status: 401,
-      message: 'Invalid or expired token'
-    });
+    console.error(error);
+    res.status(401).json({ success: false, msg: "Invalid Token" });
   }
 };
 

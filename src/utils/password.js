@@ -5,10 +5,11 @@ const encrypt = (text, key) => {
   if (!text || !key) return text;
   
   try {
-    const cipher = crypto.createCipher('aes-256-cbc', key);
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', crypto.scryptSync(key, 'salt', 32), iv);
     let encrypted = cipher.update(text, 'utf8', 'base64');
     encrypted += cipher.final('base64');
-    return encrypted;
+    return iv.toString('base64') + ':' + encrypted;
   } catch (error) {
     console.error('Encryption error:', error);
     return text;
@@ -19,8 +20,12 @@ const decrypt = (encryptedText, key) => {
   if (!encryptedText || !key) return encryptedText;
   
   try {
-    const decipher = crypto.createDecipher('aes-256-cbc', key);
-    let decrypted = decipher.update(encryptedText, 'base64', 'utf8');
+    const parts = encryptedText.split(':');
+    if (parts.length !== 2) return encryptedText;
+    
+    const iv = Buffer.from(parts[0], 'base64');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', crypto.scryptSync(key, 'salt', 32), iv);
+    let decrypted = decipher.update(parts[1], 'base64', 'utf8');
     decrypted += decipher.final('utf8');
     return decrypted;
   } catch (error) {
@@ -42,10 +47,24 @@ const verifyPassword = (plainPassword, encryptedPassword, encryptionKey) => {
       return true;
     }
     
-    // Then try decryption
-    const decryptedPassword = decrypt(encryptedPassword, encryptionKey);
-    console.log('Plain:', plainPassword, 'Encrypted:', encryptedPassword, 'Decrypted:', decryptedPassword);
-    return decryptedPassword === plainPassword;
+    // Try new encryption format first
+    if (encryptedPassword.includes(':')) {
+      const decryptedPassword = decrypt(encryptedPassword, encryptionKey);
+      return decryptedPassword === plainPassword;
+    }
+    
+    // Fallback to old encryption format
+    try {
+      const crypto = require('crypto');
+      const decipher = crypto.createDecipher('aes-256-cbc', encryptionKey);
+      let decrypted = decipher.update(encryptedPassword, 'base64', 'utf8');
+      decrypted += decipher.final('utf8');
+      return decrypted === plainPassword;
+    } catch (oldError) {
+      console.log('Old decryption failed, trying new format');
+      const decryptedPassword = decrypt(encryptedPassword, encryptionKey);
+      return decryptedPassword === plainPassword;
+    }
   } catch (error) {
     console.error('Password verification error:', error);
     return false;
