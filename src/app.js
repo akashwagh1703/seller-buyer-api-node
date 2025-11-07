@@ -61,7 +61,9 @@ app.use('/api/v16/market', require('./routes/market'));
 app.use('/api/v16/npk', require('./routes/npk'));
 app.use('/api/v16/location', require('./routes/location'));
 app.use('/api/v16/trading', require('./routes/trading'));
-// app.use('/api/v16/buyer', require('./routes/buyer'));
+app.use('/api/v16/buyer', require('./routes/buyer'));
+app.use('/api/v16/payment', require('./routes/payment'));
+app.use('/api/v16/notification', require('./routes/notification'));
 
 // 404 handler
 app.use((req, res) => {
