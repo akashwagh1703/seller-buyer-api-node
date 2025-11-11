@@ -244,76 +244,76 @@ router.get('/profile', verifyToken, usersController.getProfile);
  */
 router.post('/update_profile', verifyToken, updateProfileRules, validate, usersController.updateProfile);
 
-// /**
-//  * @swagger
-//  * /api/v16/users/is_user_regsitered:
-//  *   post:
-//  *     summary: Check if user is registered
-//  *     tags: [Users]
-//  *     security:
-//  *       - ApiKeyAuth: []
-//  *     parameters:
-//  *       - in: header
-//  *         name: domain
-//  *         required: true
-//  *         schema:
-//  *           type: string
-//  *           default: seller
-//  *       - in: header
-//  *         name: appname
-//  *         required: true
-//  *         schema:
-//  *           type: string
-//  *           default: seller_buyer
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *               phone:
-//  *                 type: string
-//  *                 example: "9876543210"
-//  *     responses:
-//  *       200:
-//  *         description: User status
-//  */
-// router.post('/is_user_regsitered', usersController.isUserRegistered);
+/**
+ * @swagger
+ * /api/v16/users/is_user_regsitered:
+ *   post:
+ *     summary: Check if user is registered
+ *     tags: [Users]
+ *     security:
+ *       - ApiKeyAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: domain
+ *         required: true
+ *         schema:
+ *           type: string
+ *           default: seller
+ *       - in: header
+ *         name: appname
+ *         required: true
+ *         schema:
+ *           type: string
+ *           default: seller_buyer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "9876543210"
+ *     responses:
+ *       200:
+ *         description: User status
+ */
+router.post('/is_user_regsitered', usersController.isUserRegistered);
 
-// /**
-//  * @swagger
-//  * /api/v16/users/logout_check/{phone}:
-//  *   get:
-//  *     summary: Logout user (Protected)
-//  *     tags: [Users]
-//  *     security:
-//  *       - BearerAuth: []
-//  *     parameters:
-//  *       - in: path
-//  *         name: phone
-//  *         required: true
-//  *         schema:
-//  *           type: string
-//  *       - in: header
-//  *         name: domain
-//  *         required: true
-//  *         schema:
-//  *           type: string
-//  *           default: seller
-//  *       - in: header
-//  *         name: appname
-//  *         required: true
-//  *         schema:
-//  *           type: string
-//  *           default: seller_buyer
-//  *     responses:
-//  *       200:
-//  *         description: Logout successful
-//  *       401:
-//  *         description: Unauthorized
-//  */
-// router.get('/logout_check/:phone', verifyToken, usersController.logoutCheck);
+/**
+ * @swagger
+ * /api/v16/users/logout_check/{phone}:
+ *   get:
+ *     summary: Logout user (Protected)
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: phone
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: header
+ *         name: domain
+ *         required: true
+ *         schema:
+ *           type: string
+ *           default: seller
+ *       - in: header
+ *         name: appname
+ *         required: true
+ *         schema:
+ *           type: string
+ *           default: seller_buyer
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/logout_check/:phone', verifyToken, usersController.logoutCheck);
 
 /**
  * @swagger

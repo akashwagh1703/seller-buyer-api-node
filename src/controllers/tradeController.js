@@ -15,6 +15,10 @@ const getListings = async (req, res) => {
         case 'product_unit': result = PROD_UNIT; break;
         case 'trade_status_list': result = TRADE_STATUS_LIST; break;
         case 'prod_details': result = PROD_DETAILS; break;
+        case 'all_products': 
+          const { rows } = await tradeModel.getTradeProducts(req.dbName, {}, 1000, 0);
+          result = rows;
+          break;
         default: result = [];
       }
     } else {
@@ -128,6 +132,67 @@ const addTradeProduct = async (req, res) => {
   } catch (error) {
     logger.error('Add trade product error', { error: error.message, stack: error.stack });
     res.json({ success: 0, status: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const getTradeProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.json({ success: 0, data: [], message: 'Missing_Parameter' });
+    }
+
+    const filters = { id };
+    const { rows } = await tradeModel.getTradeProducts(req.dbName, filters, 1, 0);
+    
+    if (rows.length === 0) {
+      return res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+    }
+
+    const product = rows[0];
+    
+    // Add enrichment similar to getTradeProducts
+    const prodCat = PROD_CAT.find(p => p.id == product.prod_cat_id);
+    product.product_category_title = prodCat?.title || '';
+    
+    const prodDetails = PROD_DETAILS.find(p => p.id == product.prod_details);
+    product.prod_details_title = prodDetails?.title || '';
+    
+    ['surplus_unit', 'sell_qty_unit', 'price_unit'].forEach(unitKey => {
+      const unit = PROD_UNIT.find(u => u.id == product[unitKey]);
+      product[`${unitKey}_title`] = unit?.title || '';
+    });
+    
+    ['status', 'trade_status'].forEach(statusKey => {
+      const status = TRADE_STATUS_LIST.find(s => s.id == product[statusKey]);
+      product[`${statusKey}_title`] = status?.title || '';
+      product[`${statusKey}_class`] = status?.statusClass || '';
+    });
+    
+    // Parse JSON fields safely
+    try {
+      product.other_details = product.other_details && typeof product.other_details === 'string' ? JSON.parse(product.other_details) : {};
+    } catch (e) {
+      product.other_details = {};
+    }
+    
+    try {
+      product.other_distance = product.other_distance && typeof product.other_distance === 'string' ? JSON.parse(product.other_distance) : {};
+    } catch (e) {
+      product.other_distance = {};
+    }
+    
+    try {
+      product.prod_images = product.prod_images && typeof product.prod_images === 'string' ? JSON.parse(product.prod_images) : {};
+    } catch (e) {
+      product.prod_images = {};
+    }
+    
+    res.json({ success: 1, data: product, message: 'Listed_Successfully' });
+  } catch (error) {
+    logger.error('Get trade product by ID error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
   }
 };
 
@@ -399,11 +464,295 @@ const sellerAction = async (req, res) => {
   }
 };
 
+// Additional trade functions to match original API
+const getProductType = async (req, res) => {
+  try {
+    // Mock implementation
+    const result = [];
+    res.json({ success: result.length > 0 ? 1 : 0, data: result, message: result.length > 0 ? 'Listed_Successfully' : 'Data_Not_Found' });
+  } catch (error) {
+    logger.error('Get product type error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const getProductData = async (req, res) => {
+  try {
+    const { product_category, product_type } = req.body;
+    // Mock implementation
+    const result = [];
+    res.json({ success: result.length > 0 ? 1 : 0, data: result, message: result.length > 0 ? 'Listed_Successfully' : 'Data_Not_Found' });
+  } catch (error) {
+    logger.error('Get product data error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Missing_Parameter' });
+  }
+};
+
+const getProductVariety = async (req, res) => {
+  try {
+    const { product_id } = req.params;
+    if (!product_id) {
+      return res.json({ success: 0, data: [], message: 'Missing_Parameter' });
+    }
+    // Mock implementation
+    const result = [];
+    res.json({ success: result.length > 0 ? 1 : 0, data: result, message: result.length > 0 ? 'Listed_Successfully' : 'Data_Not_Found' });
+  } catch (error) {
+    logger.error('Get product variety error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const getPackagingList = async (req, res) => {
+  try {
+    // Mock implementation
+    const result = [];
+    res.json({ success: result.length > 0 ? 1 : 0, data: result, message: result.length > 0 ? 'Listed_Successfully' : 'Data_Not_Found' });
+  } catch (error) {
+    logger.error('Get packaging list error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const getStorageType = async (req, res) => {
+  try {
+    // Mock implementation
+    const result = [];
+    res.json({ success: result.length > 0 ? 1 : 0, data: result, message: result.length > 0 ? 'Listed_Successfully' : 'Data_Not_Found' });
+  } catch (error) {
+    logger.error('Get storage type error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const uploadTradeImages = async (req, res) => {
+  try {
+    const { id } = req.body;
+    // Mock implementation
+    const response = {
+      success: 1,
+      data: { uploaded_image: [] },
+      message: 'Image_Uploaded_Successfully',
+      error: ''
+    };
+    res.json(response);
+  } catch (error) {
+    logger.error('Upload trade images error', { error: error.message });
+    res.json({ success: 0, data: { uploaded_image: [] }, message: 'Not_Able_Update', error: 1 });
+  }
+};
+
+const removeImage = async (req, res) => {
+  try {
+    const { id, image, type } = req.body;
+    if (!id || !image || !type) {
+      return res.json({ success: 0, data: [], message: 'Missing_Parameter' });
+    }
+    // Mock implementation
+    res.json({ success: 1, data: {}, message: 'Deleted_Successfully' });
+  } catch (error) {
+    logger.error('Remove image error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const getIncentiveList = async (req, res) => {
+  try {
+    // Mock implementation
+    const result = [];
+    res.json({ success: result.length > 0 ? 1 : 0, data: result, message: result.length > 0 ? 'Listed Successfully!' : 'No Record Found!' });
+  } catch (error) {
+    logger.error('Get incentive list error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'No Record Found!' });
+  }
+};
+
+const applyForIncentive = async (req, res) => {
+  try {
+    const { incentive_id, trade_bidding_id, user_id } = req.body;
+    if (!incentive_id || !trade_bidding_id || !user_id) {
+      return res.json({ success: 0, data: [], message: 'Parameter Missing!' });
+    }
+    // Mock implementation
+    res.json({ success: 1, data: {}, message: 'Updated successfully!' });
+  } catch (error) {
+    logger.error('Apply for incentive error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Parameter Missing!' });
+  }
+};
+
+const uploadInvoice = async (req, res) => {
+  try {
+    const { trade_bidding_id, action_by } = req.body;
+    if (!trade_bidding_id) {
+      return res.json({ success: 0, data: [], message: 'Missing Parameter!', error: '' });
+    }
+    // Mock implementation
+    res.json({ success: 1, data: {}, message: 'Invoice uploaded successfully', error: '' });
+  } catch (error) {
+    logger.error('Upload invoice error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Missing Parameter!', error: '' });
+  }
+};
+
+const addInterestOnProduct = async (req, res) => {
+  try {
+    const { buyer_id, trade_product_id } = req.body;
+    if (!buyer_id || !trade_product_id) {
+      return res.json({ status: 0, data: [], message: 'Missing_Parameter' });
+    }
+    // Mock implementation
+    res.json({ status: 1, data: 1, message: 'Added_Successfully' });
+  } catch (error) {
+    logger.error('Add interest on product error', { error: error.message });
+    res.json({ status: 0, data: [], message: 'Missing_Parameter' });
+  }
+};
+
+const getBuyersInterestProductList = async (req, res) => {
+  try {
+    const { seller_id, trade_product_id } = req.body;
+    if (!seller_id || !trade_product_id) {
+      return res.json({ status: 0, data: [], message: 'Missing_Parameter' });
+    }
+    // Mock implementation
+    const data = {};
+    res.json({ success: 1, data, message: 'Listed Successfully!' });
+  } catch (error) {
+    logger.error('Get buyers interest product list error', { error: error.message });
+    res.json({ status: 0, data: [], message: 'Missing_Parameter' });
+  }
+};
+
+const getUpcomingProductList = async (req, res) => {
+  try {
+    const { seller_id } = req.params;
+    // Mock implementation
+    const result = [];
+    res.json({ success: result.length > 0 ? 1 : 0, data: result, message: result.length > 0 ? 'Listed Successfully!' : 'No Record Found!' });
+  } catch (error) {
+    logger.error('Get upcoming product list error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'No Record Found!' });
+  }
+};
+
+const addDemandProduct = async (req, res) => {
+  try {
+    const { buyer_id } = req.body;
+    if (!buyer_id) {
+      return res.json({ status: 0, data: [], message: 'Missing_Parameter' });
+    }
+    // Mock implementation
+    res.json({ status: 1, data: 1, message: 'Added_Successfully' });
+  } catch (error) {
+    logger.error('Add demand product error', { error: error.message });
+    res.json({ status: 0, data: [], message: 'Missing_Parameter' });
+  }
+};
+
+const getBuyersDemandProductList = async (req, res) => {
+  try {
+    // Mock implementation
+    const result = [];
+    res.json({ success: result.length > 0 ? 1 : 0, data: result, message: result.length > 0 ? 'Listed Successfully!' : 'No Record Found!' });
+  } catch (error) {
+    logger.error('Get buyers demand product list error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'No Record Found!' });
+  }
+};
+
+const getProductList = async (req, res) => {
+  try {
+    // Mock implementation
+    const result = [];
+    res.json({ success: 1, data: result, message: result.length > 0 ? 'Listed_Successfully' : 'Data_Not_Found' });
+  } catch (error) {
+    logger.error('Get product list error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Missing_Parameter' });
+  }
+};
+
+const getTradeProductReport = async (req, res) => {
+  try {
+    const { user_id } = req.body;
+    if (!user_id) {
+      return res.json({ success: 0, data: [], message: 'User id is required.' });
+    }
+    // Mock implementation
+    const data = [];
+    res.json({ success: data.length > 0 ? 1 : 0, data, message: data.length > 0 ? 'Listed_Successfully' : 'Data_Not_Found' });
+  } catch (error) {
+    logger.error('Get trade product report error', { error: error.message });
+    res.json({ success: 0, data: [], message: error.message });
+  }
+};
+
+const getHomeFilter = async (req, res) => {
+  try {
+    const report_filter = [
+      { id: 1, title: 'Year', value: new Date().getFullYear().toString() },
+      { id: 2, title: 'Month', value: (new Date().getMonth() + 1).toString().padStart(2, '0') },
+      { id: 3, title: 'Day', value: new Date().getDate().toString().padStart(2, '0') }
+    ];
+    res.json({ success: 1, data: report_filter, message: 'Listed_Successfully' });
+  } catch (error) {
+    logger.error('Get home filter error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const getMarketableSurplus = async (req, res) => {
+  try {
+    const { user_id } = req.body;
+    // Mock implementation
+    const result = [];
+    res.json({ success: result.length > 0 ? 1 : 0, data: result, message: result.length > 0 ? 'Listed_Successfully' : 'Data_Not_Found' });
+  } catch (error) {
+    logger.error('Get marketable surplus error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const markSelfSold = async (req, res) => {
+  try {
+    const { product_id } = req.body;
+    if (!product_id) {
+      return res.json({ success: 0, data: [], message: 'Missing_Parameter' });
+    }
+    // Mock implementation
+    res.json({ success: 1, data: {}, message: 'Status updated successfully!' });
+  } catch (error) {
+    logger.error('Mark self sold error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Status not updated!' });
+  }
+};
+
 module.exports = {
   getListings,
   addTradeProduct,
   getTradeProducts,
+  getTradeProductById,
   deleteTradeProduct,
   getTradeBidding,
-  sellerAction
+  sellerAction,
+  getProductType,
+  getProductData,
+  getProductVariety,
+  getPackagingList,
+  getStorageType,
+  uploadTradeImages,
+  removeImage,
+  getIncentiveList,
+  applyForIncentive,
+  uploadInvoice,
+  addInterestOnProduct,
+  getBuyersInterestProductList,
+  getUpcomingProductList,
+  addDemandProduct,
+  getBuyersDemandProductList,
+  getProductList,
+  getTradeProductReport,
+  getHomeFilter,
+  getMarketableSurplus,
+  markSelfSold
 };

@@ -122,6 +122,7 @@ router.get('/my_land/:farmer_id', verifyToken, farmController.getMyFarms);
  */
 router.get('/land_detail/:land_id', verifyToken, farmController.getFarmDetail);
 
+
 /**
  * @swagger
  * /api/v16/farm/delete_land_crop/{land_id}:
@@ -231,6 +232,7 @@ router.post('/add_crop_details', verifyToken, cropController.addCrop);
  *             schema:
  *               $ref: '#/components/schemas/ApiResponse'
  */
+
 router.post('/update_crop_details', verifyToken, cropController.updateCrop);
 
 /**
