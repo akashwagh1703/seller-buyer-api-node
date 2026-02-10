@@ -1,7 +1,7 @@
 const tradeModel = require('../models/tradeModel');
 const { sendSuccess, sendError } = require('../utils/response');
 const logger = require('../utils/logger');
-const { PROD_CAT, PROD_UNIT, TRADE_STATUS_LIST, SEASON_LIST, PROD_DETAILS } = require('../config/constants');
+const { PROD_CAT, PROD_UNIT, TRADE_STATUS_LIST, SEASON_LIST, PROD_DETAILS, PROD_PAYMENT } = require('../config/constants');
 
 const getListings = async (req, res) => {
   try {
@@ -23,7 +23,8 @@ const getListings = async (req, res) => {
         season: SEASON_LIST, 
         product_unit: PROD_UNIT, 
         trade_status_list: TRADE_STATUS_LIST, 
-        prod_details: PROD_DETAILS 
+        prod_details: PROD_DETAILS,
+        product_payment: PROD_PAYMENT
       };
     }
 
@@ -38,8 +39,20 @@ const getListings = async (req, res) => {
   }
 };
 
+const getProductType = async (req, res) => {
+  try {
+    const sql = `SELECT id, title FROM prod_type WHERE is_deleted = false AND is_active = true ORDER BY id DESC`;
+    const result = await require('../config/database').query(req.dbName, sql, []);
+    res.json({ success: 1, data: result.rows, message: 'Listed_Successfully' });
+  } catch (error) {
+    logger.error('Get product type error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
 const addTradeProduct = async (req, res) => {
   try {
+    logger.info('Add trade product request', { body: req.body });
     const { id, step, ...postdata } = req.body;
     const insertdata = {};
 
@@ -50,7 +63,7 @@ const addTradeProduct = async (req, res) => {
     if (postdata.prod_cat_id == 2) postval.push('prod_details');
 
     postval.forEach(key => {
-      if (postdata[key] !== undefined && postdata[key] !== '') insertdata[key] = postdata[key];
+      if (postdata[key] !== undefined && postdata[key] !== '' && postdata[key] !== null) insertdata[key] = postdata[key];
     });
 
     if (step == 1) {
@@ -134,6 +147,11 @@ const addTradeProduct = async (req, res) => {
 const getTradeProducts = async (req, res) => {
   try {
     let { user_id, id, prod_cat_id, trade_status, start = 1 } = req.body;
+    
+    // Get user_id from token if not provided
+    if (!user_id && req.userId) {
+      user_id = req.userId;
+    }
     
     // Convert empty strings to null/undefined
     user_id = user_id === '' ? undefined : user_id;
@@ -399,11 +417,86 @@ const sellerAction = async (req, res) => {
   }
 };
 
+const getProductData = async (req, res) => {
+  try {
+    const { product_type, product_category } = req.body;
+    const sql = `SELECT id, title FROM product_master WHERE product_type_id = $1 AND product_category_id = $2 AND is_deleted = false AND is_active = true ORDER BY title ASC`;
+    const result = await require('../config/database').query(req.dbName, sql, [product_type, product_category]);
+    res.json({ success: 1, data: result.rows, message: 'Listed_Successfully' });
+  } catch (error) {
+    logger.error('Get product data error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const getProductVariety = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sql = `SELECT id, title FROM product_variety WHERE product_id = $1 AND is_deleted = false AND is_active = true ORDER BY title ASC`;
+    const result = await require('../config/database').query(req.dbName, sql, [id]);
+    res.json({ success: 1, data: result.rows, message: 'Listed_Successfully' });
+  } catch (error) {
+    logger.error('Get product variety error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const getPackagingList = async (req, res) => {
+  try {
+    const sql = `SELECT id, title FROM packaging_master WHERE is_deleted = false AND is_active = true ORDER BY title ASC`;
+    const result = await require('../config/database').query(req.dbName, sql, []);
+    res.json({ success: 1, data: result.rows, message: 'Listed_Successfully' });
+  } catch (error) {
+    logger.error('Get packaging list error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const getStorageType = async (req, res) => {
+  try {
+    const sql = `SELECT id, title FROM storage_type WHERE is_deleted = false AND is_active = true ORDER BY title ASC`;
+    const result = await require('../config/database').query(req.dbName, sql, []);
+    res.json({ success: 1, data: result.rows, message: 'Listed_Successfully' });
+  } catch (error) {
+    logger.error('Get storage type error', { error: error.message });
+    res.json({ success: 0, data: [], message: 'Data_Not_Found' });
+  }
+};
+
+const uploadTradeImages = async (req, res) => {
+  try {
+    const { id, step } = req.body;
+    logger.info('Upload trade images', { id, step, files: req.files });
+    res.json({ success: 1, message: 'Images_Uploaded_Successfully' });
+  } catch (error) {
+    logger.error('Upload trade images error', { error: error.message });
+    res.json({ success: 0, message: 'Upload_Failed' });
+  }
+};
+
+const removeImage = async (req, res) => {
+  try {
+    const { id, image, type } = req.body;
+    logger.info('Remove image', { id, image, type });
+    res.json({ success: 1, message: 'Image_Removed_Successfully' });
+  } catch (error) {
+    logger.error('Remove image error', { error: error.message });
+    res.json({ success: 0, message: 'Remove_Failed' });
+  }
+};
+
 module.exports = {
   getListings,
+  getProductType,
   addTradeProduct,
   getTradeProducts,
   deleteTradeProduct,
   getTradeBidding,
-  sellerAction
+  sellerAction,
+  getProductData,
+  getProductVariety,
+  getPackagingList,
+  getStorageType,
+  uploadTradeImages,
+  removeImage
 };

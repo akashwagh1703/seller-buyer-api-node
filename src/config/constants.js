@@ -5,23 +5,27 @@ module.exports = {
   },
   
   PROD_DETAILS: [
-    { id: 1, title: 'Fresh', statusClass: 'green-status' },
-    { id: 2, title: 'Processed', statusClass: 'blue-status' }
+    { id: 1, title: 'Product', map_key: 'product' },
+    { id: 2, title: 'Produce', map_key: 'produce' }
+  ],
+  
+  PROD_PAYMENT: [
+    { id: 30, title: 30 },
+    { id: 50, title: 50 },
+    { id: 100, title: 100 },
+    { id: 'payment_after_delivery', title: 'Payment after delivery' }
   ],
   
   PROD_CAT: [
-    { id: 1, title: 'Cereals', statusClass: 'green-status' },
-    { id: 2, title: 'Upcoming', statusClass: 'blue-status' },
-    { id: 3, title: 'Fruits', statusClass: 'orange-status' },
-    { id: 4, title: 'Vegetables', statusClass: 'yellow-status' }
+    { id: 1, title: 'Raw Product', map_key: 'raw_product', days: 7 },
+    { id: 2, title: 'Upcoming Product', map_key: 'pre_processed_product', days: 8 },
+    { id: 3, title: 'Processed Product', map_key: 'processed_product', days: 30 }
   ],
   
   PROD_UNIT: [
-    { id: 1, title: 'Kg', statusClass: '' },
-    { id: 2, title: 'Quintal', statusClass: '' },
-    { id: 3, title: 'Ton', statusClass: '' },
-    { id: 4, title: 'Litre', statusClass: '' },
-    { id: 5, title: 'Piece', statusClass: '' }
+    { id: 1, title: 'KG', map_key: 'kg', short_title: 'KG' },
+    { id: 2, title: 'Tonn', map_key: 'tonn', short_title: 'T' },
+    { id: 3, title: 'Quintal', map_key: 'quintal', short_title: 'Q' }
   ],
   
   TRADE_STATUS_LIST: [
@@ -37,11 +41,9 @@ module.exports = {
   ],
   
   SEASON_LIST: [
-    { id: 1, title: 'Kharif', statusClass: '' },
-    { id: 2, title: 'Rabi', statusClass: '' },
-    { id: 3, title: 'Zaid', statusClass: '' },
-    { id: 4, title: 'Summer', statusClass: '' },
-    { id: 5, title: 'Winter', statusClass: '' }
+    { id: 1, title: 'Kharif', map_key: 'kharif' },
+    { id: 2, title: 'Late Kharif', map_key: 'late_kharif' },
+    { id: 3, title: 'Rabi', map_key: 'rabi' }
   ],
   
   STEP_LIST: {

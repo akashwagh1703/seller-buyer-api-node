@@ -30,6 +30,16 @@ const dbConfigs = {
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
+  },
+  'nedfi': {
+    host: process.env.DB_HOST_UAT,
+    port: process.env.DB_PORT_UAT,
+    database: process.env.DB_NAME_UAT,
+    user: process.env.DB_USER_UAT,
+    password: process.env.DB_PASSWORD_UAT,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
   }
 };
 

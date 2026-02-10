@@ -412,4 +412,12 @@ router.post('/trade_bidding', verifyToken, tradeController.getTradeBidding);
  */
 router.post('/seller_action', verifyToken, tradeController.sellerAction);
 
+router.get('/product_type', verifyToken, tradeController.getProductType);
+router.post('/product_data', verifyToken, tradeController.getProductData);
+router.get('/product_variety/:id', verifyToken, tradeController.getProductVariety);
+router.get('/packaging_list', verifyToken, tradeController.getPackagingList);
+router.get('/storage_type', verifyToken, tradeController.getStorageType);
+router.post('/upload_trade_images', verifyToken, tradeController.uploadTradeImages);
+router.post('/remove_image', verifyToken, tradeController.removeImage);
+
 module.exports = router;

@@ -135,10 +135,10 @@ router.post('/login_otp', verifyOTPRules, validate, usersController.loginOTP);
  * @swagger
  * /api/v16/users/resend_otp:
  *   post:
- *     summary: Resend OTP (Protected)
+ *     summary: Resend OTP
  *     tags: [Users]
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     parameters:
  *       - in: header
  *         name: domain
@@ -164,10 +164,8 @@ router.post('/login_otp', verifyOTPRules, validate, usersController.loginOTP);
  *     responses:
  *       200:
  *         description: OTP resent
- *       401:
- *         description: Unauthorized
  */
-router.post('/resend_otp', verifyToken, usersController.resendOTP);
+router.post('/resend_otp', usersController.resendOTP);
 
 /**
  * @swagger
@@ -240,7 +238,7 @@ router.get('/profile', verifyToken, usersController.getProfile);
  *       401:
  *         description: Unauthorized
  */
-router.post('/update_profile', verifyToken, updateProfileRules, validate, usersController.updateProfile);
+router.post('/update_profile', verifyToken, usersController.updateProfile);
 
 /**
  * @swagger
@@ -397,10 +395,10 @@ router.post('/register', usersController.register);
  * @swagger
  * /api/v16/users/master_data:
  *   get:
- *     summary: Get master data (Protected)
+ *     summary: Get master data
  *     tags: [Users]
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     parameters:
  *       - in: header
  *         name: domain
@@ -417,19 +415,17 @@ router.post('/register', usersController.register);
  *     responses:
  *       200:
  *         description: Master data retrieved
- *       401:
- *         description: Unauthorized
  */
-router.get('/master_data', verifyToken, usersController.getMasterData);
+router.get('/master_data', usersController.getMasterData);
 
 /**
  * @swagger
  * /api/v16/users/about_us:
  *   get:
- *     summary: Get about us information (Protected)
+ *     summary: Get about us information
  *     tags: [Users]
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     parameters:
  *       - in: header
  *         name: domain
@@ -446,19 +442,17 @@ router.get('/master_data', verifyToken, usersController.getMasterData);
  *     responses:
  *       200:
  *         description: About us data
- *       401:
- *         description: Unauthorized
  */
-router.get('/about_us', verifyToken, usersController.aboutUs);
+router.get('/about_us', usersController.aboutUs);
 
 /**
  * @swagger
  * /api/v16/users/categories:
  *   get:
- *     summary: Get categories list (Protected)
+ *     summary: Get categories list
  *     tags: [Users]
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     parameters:
  *       - in: header
  *         name: domain
@@ -475,9 +469,10 @@ router.get('/about_us', verifyToken, usersController.aboutUs);
  *     responses:
  *       200:
  *         description: Categories list
- *       401:
- *         description: Unauthorized
  */
-router.get('/categories', verifyToken, usersController.categories);
+router.get('/categories', usersController.categories);
+
+router.get('/get_states', usersController.getStates);
+router.get('/get_cities/:state_id', usersController.getCities);
 
 module.exports = router;
